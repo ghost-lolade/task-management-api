@@ -1,4 +1,4 @@
-import { Repository, EntityRepository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import {
@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-@EntityRepository(User)
 export class UserRepository extends Repository<User> {
   async singUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
     const { username, password } = authCredentialsDto;
@@ -33,7 +32,7 @@ export class UserRepository extends Repository<User> {
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<string> {
     const { username, password } = authCredentialsDto;
-    const user = await this.findOne({ username });
+    const user = await this.findOne({ where: { username } });
 
     if (user && (await user.validatePassword(password))) {
       return user.username;
