@@ -12,6 +12,12 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiBadRequestResponse,
+} from '@nestjs/swagger';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -23,11 +29,18 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 
+@ApiTags('tasks')
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
+  @ApiOperation({ summary: 'Get all tasks' })
+  @ApiCreatedResponse({
+    description: 'List of tasks',
+    type: Task,
+    isArray: true,
+  })
   @Get()
   getTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
@@ -36,6 +49,11 @@ export class TasksController {
     return this.tasksService.getTasks(filterDto, user);
   }
 
+  @ApiOperation({ summary: 'Get a task by ID' })
+  @ApiCreatedResponse({
+    description: 'Task details',
+    type: Task,
+  })
   @Get('/:id')
   getTaskById(
     @Param('id', ParseIntPipe) id: number,
@@ -44,6 +62,10 @@ export class TasksController {
     return this.tasksService.getTaskById(id, user);
   }
 
+  @ApiOperation({ summary: 'Delete a task by ID' })
+  @ApiCreatedResponse({
+    description: 'Task deleted successfully',
+  })
   @Delete('/:id')
   deleteTask(
     @GetUser() user: User,
@@ -52,6 +74,12 @@ export class TasksController {
     return this.tasksService.deleteTask(id, user);
   }
 
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiCreatedResponse({
+    description: 'Task created successfully',
+    type: Task,
+  })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
   @UsePipes(ValidationPipe)
   createTask(
@@ -61,6 +89,11 @@ export class TasksController {
     return this.tasksService.createTask(createTaskDto, user);
   }
 
+  @ApiOperation({ summary: 'Update a task status by ID' })
+  @ApiCreatedResponse({
+    description: 'Task status updated successfully',
+    type: Task,
+  })
   @Patch('/:id/status')
   updateTaskStatus(
     @Param('id', ParseIntPipe) id: number,
